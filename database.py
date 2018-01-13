@@ -73,7 +73,7 @@ class Agreements(Base):  # таблица соглашений между дву
 
 class ClientRequests(Base):  # таблица запросов и проблем
                             # клиентов которые предстоит решить)
-    __tablename__ = 'companies agreements'
+    __tablename__ = 'companies_agreements'
     id = Column(Integer, primary_key=True)
     conmany_id = Column(Integer, ForeignKey('Company.id'))
     conmany_name = Column(String(50), ForeignKey('Company.conmany_name'))
