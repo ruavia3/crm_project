@@ -1,9 +1,8 @@
 
-from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-
-engine = create_engine('sqlite:///crm_project_db.sqlite')
+from settings import engine
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
@@ -11,7 +10,8 @@ Base = declarative_base()
 Base.query = db_session.query_property()
 
 
-class User(Base):
+class User(Base):  # таблица пользователей системы (они заводят
+                    # клиентов и могут выгружать отчеты)
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     first_name = Column(String(50))
@@ -29,13 +29,14 @@ class User(Base):
         return '<User {} {} {}>'.format(self.first_name, self.last_name, self.email)
 
 
-class Company(Base):
+class Company(Base):  # таблица компаний-клиентов,
+                    # которая содержить основные данные клиентов
     __tablename__ = 'companies'
     id = Column(Integer, primary_key=True)
-    conmany_name = Column(String(50))
-    itin_num = Column(String(12))
-    email = Column(String(120), unique=True)
-    phone_numb = Column(String(50), unique=True)
+    conmany_name = Column(String(50))  # наименование компании
+    itin_num = Column(String(12))  # ИНН
+    email = Column(String(120), unique=True)  # эл.почта компании
+    phone_numb = Column(String(50), unique=True)  # телефон
 
     def __init__(self, conmany_name=None, itin_num=None, email=None, phone_numb=None):
         self.conmany_name = conmany_name
@@ -46,13 +47,17 @@ class Company(Base):
     def __repr__(self):
         return '<Company {} {} {} {}>'.format(self.conmany_name, self.itin_num, self.email, self.phone_numb)
 
-class Agreements(Base):
+
+class Agreements(Base):  # таблица соглашений между двумя клиентами (данные
+                        # должны поддтягиваться из таблицы компании и вручную
+                        # заносятся данные об обороте между клиентами и
+                        # и номер соглашения)
     __tablename__ = 'companies agreements'
     id = Column(Integer, primary_key=True)
     conmany_1_id = Column(Integer, ForeignKey('Company.id'))
-    conmany_1_name = Column(String(50))
+    conmany_1_name = Column(String(50), ForeignKey('Company.conmany_name'))
     conmany_2_id = Column(Integer, ForeignKey('Company.id'))
-    conmany_2_name = Column(String(50))
+    conmany_2_name = Column(String(50), ForeignKey('Company.conmany_name'))
     agreement_num = Column(String(12))
     cash_volume = Column(String(50))
 
@@ -65,11 +70,13 @@ class Agreements(Base):
     def __repr__(self):
         return '<Agreement {} {} {} {}>'.format(self.agreement_num, self.conmany_1_name, self.conmany_2_name, self.cash_volume)
 
-class client_requests(Base):
+
+class ClientRequests(Base):  # таблица запросов и проблем
+                            # клиентов которые предстоит решить)
     __tablename__ = 'companies agreements'
     id = Column(Integer, primary_key=True)
     conmany_id = Column(Integer, ForeignKey('Company.id'))
-    conmany_name = Column(String(50))
+    conmany_name = Column(String(50), ForeignKey('Company.conmany_name'))
     request = Column(String(250))
     req_status = Column(String(50))
 
@@ -80,6 +87,7 @@ class client_requests(Base):
 
     def __repr__(self):
         return '<Request {} {} {}>'.format(self.conmany_name, self.request, self.req_status)
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
