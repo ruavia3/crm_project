@@ -1,11 +1,14 @@
 
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from settings import engine
+from sqlalchemy import create_engine
+from settings import db_name  # импорт настройки - название базы данных
+import hashlib
+import uuid
 
+engine = create_engine(db_name)
 db_session = scoped_session(sessionmaker(bind=engine))
-
 Base = declarative_base()
 Base.query = db_session.query_property()
 
@@ -18,15 +21,47 @@ class User(Base):  # таблица пользователей системы (�
     last_name = Column(String(50))
     email = Column(String(120), unique=True)
     telegram_id = Column(String(50), unique=True)
+    _password = Column(String(50), name='password')
 
-    def __init__(self, first_name=None, last_name=None, email=None, telegram_id=None):
+    def __init__(self, first_name=None, last_name=None,
+                 email=None, telegram_id=None):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.telegram_id = telegram_id
 
     def __repr__(self):
-        return '<User {} {} {}>'.format(self.first_name, self.last_name, self.email)
+        return '<User {} {} {}>'.format(self.first_name,
+                                        self.last_name, self.email)
+
+    @property
+    def full_name(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, plaintext):
+        # Генерируем соль
+        salt = uuid.uuid4().hex
+        # Соединяем с паролем и получаем хеш
+        hashed_password = hashlib.sha512(
+            (plaintext + salt).encode()).hexdigest()
+        # Сохраняем его вместе с сеолью в поле таблицы
+        self._password = salt + '|' + hashed_password
+
+    def check_password(self, plaintext):
+        # Получаем из поля "пароль" соль и хеш (хеш от пароля + соль)
+        salt, hashed_password = self.password.split('|')
+        # Проверяем соответствует ли сохраненный хаш от того,
+        # который мы получим с присланным паролем
+        return hashed_password == hashlib.sha512(
+            (plaintext + salt).encode()).hexdigest()
+
+    def get_id(self):  # Требуется для работы модуля flask_login
+        return self.email
 
 
 class Company(Base):  # таблица компаний-клиентов,
@@ -38,45 +73,53 @@ class Company(Base):  # таблица компаний-клиентов,
     email = Column(String(120), unique=True)  # эл.почта компании
     phone_numb = Column(String(50), unique=True)  # телефон
 
-    def __init__(self, conmany_name=None, itin_num=None, email=None, phone_numb=None):
+    def __init__(
+            self, conmany_name=None, itin_num=None,
+            email=None, phone_numb=None):
         self.conmany_name = conmany_name
         self.itin_num = itin_num
         self.email = email
         self.phone_numb = phone_numb
 
     def __repr__(self):
-        return '<Company {} {} {} {}>'.format(self.conmany_name, self.itin_num, self.email, self.phone_numb)
+        return '<Company {} {} {} {}>'.format(
+            self.conmany_name, self.itin_num,
+            self.email, self.phone_numb)
 
 
 class Agreements(Base):  # таблица соглашений между двумя клиентами (данные
                         # должны поддтягиваться из таблицы компании и вручную
                         # заносятся данные об обороте между клиентами и
                         # и номер соглашения)
-    __tablename__ = 'companies agreements'
+    __tablename__ = 'companies_agreements'
     id = Column(Integer, primary_key=True)
-    conmany_1_id = Column(Integer, ForeignKey('Company.id'))
-    conmany_1_name = Column(String(50), ForeignKey('Company.conmany_name'))
-    conmany_2_id = Column(Integer, ForeignKey('Company.id'))
-    conmany_2_name = Column(String(50), ForeignKey('Company.conmany_name'))
+    conmany_1_id = Column(Integer, ForeignKey('companies.id'))
+    company_1 = relationship('Company', foreign_keys=[conmany_1_id])
+    # conmany_1_name = Column(String(50), ForeignKey('Company.conmany_name'))
+    conmany_2_id = Column(Integer, ForeignKey('companies.id'))
+    company_2 = relationship('Company', foreign_keys=[conmany_2_id])
     agreement_num = Column(String(12))
     cash_volume = Column(String(50))
 
-    def __init__(self, conmany_1_name=None, conmany_2_name=None, agreement_num=None, cash_volume=None):
+    def __init__(self, conmany_1_name=None, conmany_2_name=None,
+                 agreement_num=None, cash_volume=None):
         self.conmany_1_name = conmany_1_name
         self.conmany_2_name = conmany_2_name
         self.agreement_num = agreement_num
         self.cash_volume = cash_volume
 
     def __repr__(self):
-        return '<Agreement {} {} {} {}>'.format(self.agreement_num, self.conmany_1_name, self.conmany_2_name, self.cash_volume)
+        return '<Agreement {} {} {} {}>'.format(
+            self.agreement_num, self.conmany_1.name,
+            self.conmany_2.name, self.cash_volume)
 
 
 class ClientRequests(Base):  # таблица запросов и проблем
                             # клиентов которые предстоит решить)
-    __tablename__ = 'companies agreements'
+    __tablename__ = 'companies_requests'
     id = Column(Integer, primary_key=True)
-    conmany_id = Column(Integer, ForeignKey('Company.id'))
-    conmany_name = Column(String(50), ForeignKey('Company.conmany_name'))
+    conmany_id = Column(Integer, ForeignKey('companies.id'))
+    company_n = relationship('Company', foreign_keys=[conmany_id])
     request = Column(String(250))
     req_status = Column(String(50))
 
@@ -86,8 +129,14 @@ class ClientRequests(Base):  # таблица запросов и проблем
         self.req_status = req_status
 
     def __repr__(self):
-        return '<Request {} {} {}>'.format(self.conmany_name, self.request, self.req_status)
+        return '<Request {} {} {}>'.format(
+            self.conmany_name, self.request, self.req_status)
 
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
+    # u = User(email='no@any.mail')
+    # u.password = '123'
+    # db_session.add(u)
+    # db_session.commit()
+    # # Это для создания базы с тестовым пользователем
