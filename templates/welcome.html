@@ -46,7 +46,14 @@
                         <button type="submit" class="btn btn-primary">Login</button>
                    </form>
       {% else %}
-          <span>Welcome {{ user.email }}</span>
+      <ul class="nav navbar-right">
+          <!-- <div class ="navbar-right"> -->
+        <span>Welcome {{ user.email }}  </span>
+          <!-- </div> -->
+    </ul>  
+        <form action="{{ url_for('logout') }}" method="post">
+          <button type="submit" class="btn btn-primary">Logout</button>
+        </form>
       {% endif %}
      
     </div>

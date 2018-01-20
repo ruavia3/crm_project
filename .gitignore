@@ -1,5 +1,9 @@
 ### Python ###
 # Byte-compiled / optimized / DLL files
+css/
+env/
+img/
+js/
 __pycache__/
 *.py[cod]
 *$py.class

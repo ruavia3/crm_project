@@ -12,30 +12,19 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
 
-engine = sa.create_engine('sqlite:///users.sqlite')
+engine = sa.create_engine('sqlite:///users_example.sqlite')
 db_session = scoped_session(sessionmaker(bind=engine))
 Base = declarative_base()
-Base.query = db_session.query_property()
-_password = 'empty'
+
 
 class User(Base, UserMixin):  # UserMixin нужен для работы модуля flask_login
     __tablename__ = 'users'
-
 
     id = sa.Column(sa.Integer, primary_key=True)
     first_name = sa.Column(sa.String)
     last_name = sa.Column(sa.String)
     email = sa.Column(sa.String, unique=True)
-    _password = sa.Column(sa.String)
-
-    def __init__(self, first_name=None, last_name=None, email=None, password=None):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.password = password
-
-    def __repr__(self):
-        return '<User {} {} {}>'.format(self.first_name, self.last_name, self.email)
+    _password = sa.Column(sa.String, name='password')
 
     @property
     def full_name(self):
@@ -47,16 +36,12 @@ class User(Base, UserMixin):  # UserMixin нужен для работы мод�
 
     @password.setter
     def password(self, plaintext):
-        
-        self._password = '[' + plaintext + ']'
-        
         # Генерируем соль
-        
-        #salt = uuid.uuid4().hex
+        salt = uuid.uuid4().hex
         # Соединяем с паролем и получаем хеш
-        #hashed_password = hashlib.sha512((plaintext + salt).encode()).hexdigest()
+        hashed_password = hashlib.sha512((plaintext + salt).encode()).hexdigest()
         # Сохраняем его вместе с сеолью в поле таблицы
-        #self._password = salt + '|' + hashed_password
+        self._password = salt + '|' + hashed_password
 
     def check_password(self, plaintext):
         # Получаем из поля "пароль" соль и хеш (хеш от пароля + соль)
@@ -99,13 +84,10 @@ class LoginForm(Form):
 
 
 from flask_login import login_user, logout_user, login_required, current_user
-from flask import Flask, render_template, request
+from flask import render_template
 
 @app.route('/')
-def home():
-    return render_template('welcome.html')
 @login_required  # Если пользователь не залогинен, то редирект на страницу логина
-
 def index():
     # В переменной current_user будет текущий пользователь
     # Если пользователь не залогинен, то current_user будет "анонимным"
@@ -116,7 +98,24 @@ def index():
 
     # Но я этот код закоментил, т.к. выше стоит декоратор @login_required
     # а значит анонимный пользователь сюда не попадет
-    return 'Hello, {}'.format(current_user.email)
+    return render_template('welcome.html', user=current_user)
+
+
+    """
+    {% if user.is_anonymous %}
+        <form action="/login/"></form>
+    {% else %}
+        <span>Welcome {{ user.first_name }}</span>
+    {% endif %}
+
+    {% if user.is_anonymous %}
+        кукиш тебе
+    {% else %}
+        lkjlkj;lkj
+    {% endif %}
+    """
+    
+    # return 'Hello, {}'.format(current_user.email)
 
 
 # Выше мы указали этот view для login_manager'а:
@@ -143,7 +142,7 @@ def login():
         # подробнее тут http://flask.pocoo.org/docs/0.12/patterns/flashing/
         flask.flash('Email or password is wrong.')
 
-    return flask.render_template('login.html', form=form, user=current_user)
+    return flask.render_template('welcome_example.html', form=form)
 
 
 @app.route('/logout/', methods=['GET', 'POST'])
@@ -156,9 +155,9 @@ if __name__ == '__main__':
 
     # # Это для создания базы с тестовым пользователем
     Base.metadata.create_all(bind=engine)
-    u = User(email='test@gmail.com')
-    u.password = '123'
-    db_session.add(u)
-    db_session.commit()
+    # u = User(email='no@any.mail')
+    # u.password = '123'
+    # db_session.add(u)
+    # db_session.commit()
 
-    app.run(port=5010, debug=True)
+app.run(port=5010, debug=True)
