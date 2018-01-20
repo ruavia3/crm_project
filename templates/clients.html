@@ -29,6 +29,23 @@
 </tr>
 </thead>
 <tbody>
+
+{% for company in company_list %}
+
+<tr>
+<td>{{ company.itin_num }}</td>
+<td>{{ company.company_name }}</td>
+<td>{{ company.email }}</td>
+<td>{{ company.phone_numb }}</td>
+</tr>
+
+{% endfor %}
+
+{% if not current_user.is_anonymous %}
+Hello {{ current_user.email }}
+{% endif %}
+
+
 <tr>
 <td>7744000302</td>
 <td>АО «Райффайзенбанк»</td>

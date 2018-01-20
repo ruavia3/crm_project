@@ -3,17 +3,19 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
-from settings import db_name  # импорт настройки - название базы данных
+from flask_login import UserMixin
+
+from settings import DB_NAME  # импорт настройки - название базы данных
 import hashlib
 import uuid
 
-engine = create_engine(db_name)
+engine = create_engine(DB_NAME)
 db_session = scoped_session(sessionmaker(bind=engine))
 Base = declarative_base()
 Base.query = db_session.query_property()
 
 
-class User(Base):  # таблица пользователей системы (они заводят
+class User(Base, UserMixin):  # таблица пользователей системы (они заводят
                     # клиентов и могут выгружать отчеты)
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)

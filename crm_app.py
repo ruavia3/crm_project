@@ -1,5 +1,5 @@
 import flask
-from database import db_session, User
+from database import db_session, User, Company
 
 app = flask.Flask(__name__)
 
@@ -52,7 +52,13 @@ def index():
 
     # Но я этот код закоментил, т.к. выше стоит декоратор @login_required
     # а значит анонимный пользователь сюда не попадет
-    return 'Hello, {}'.format(current_user.email)
+    # return 'Hello, {}'.format(current_user.email)
+    return flask.render_template('welcome.html')
+
+@app.route('/clients/')
+def clients():
+    company_list = db_session.query(Company).limit(10)
+    return flask.render_template('clients.html', company_list=company_list)
 
 
 # Выше мы указали этот view для login_manager'а:
@@ -73,6 +79,7 @@ def login():
 
                 next_url = flask.request.args.get(
                     'next', flask.url_for('index'))
+                next_url = flask.url_for('index')
                 return flask.redirect(next_url)
 
         # Это механизм для вывода дополнительных сообщений на страницу
