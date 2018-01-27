@@ -4,13 +4,15 @@ app = flask.Flask(__name__)
 
 app.config.update(SECRET_KEY='not very secret')
 
-
+import requests
 import hashlib
 import uuid
 import sqlalchemy as sa
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
+from local_settings import TELE_TOKEN, CRM_CHANNEL
+
 
 engine = sa.create_engine('sqlite:///users_example.sqlite')
 db_session = scoped_session(sessionmaker(bind=engine))
@@ -149,6 +151,19 @@ def login():
 def logout():
     logout_user()
     return flask.redirect(flask.url_for('login'))
+
+
+@app.route('/telegram_inform/', methods=['POST'])
+def telegram_inform():
+    # TODO: выслать сообщение в телеграм
+    send_message_template = "https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={client_update}"
+    requests.get(send_message_template.format(**{
+        "TOKEN":TELE_TOKEN,
+        "chat_id":CRM_CHANNEL,
+        "client_update":flask.request.form.get('message'),
+    }))
+
+    return flask.redirect(flask.url_for('index'))
 
 
 if __name__ == '__main__':

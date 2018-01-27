@@ -46,16 +46,20 @@
                         <button type="submit" class="btn btn-primary">Login</button>
                    </form>
       {% else %}
-      <ul class="nav navbar-right">
+      <form action="{{ url_for('logout') }}" method="post" class="nav navbar-right" style="margin-left: 10px; margin-top: 10px">
+          <button type="submit" class="btn btn-primary">Logout</button>
+        </form>        
+      <ul class="nav navbar-right" style="margin-top: 15px">
           <!-- <div class ="navbar-right"> -->
         <span>Welcome {{ user.email }}  </span>
-          <!-- </div> -->
-    </ul>  
-        <form action="{{ url_for('logout') }}" method="post">
-          <button type="submit" class="btn btn-primary">Logout</button>
-        </form>
+      </ul>  
+
       {% endif %}
      
+        <form action="{{ url_for('telegram_inform') }}" method="post">
+          <input type="text" name="message">
+          <button type="submit" class="btn btn-primary">Telegram inform</button>
+        </form>
     </div>
   </div>
 </nav>
