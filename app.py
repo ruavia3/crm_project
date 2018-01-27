@@ -12,9 +12,10 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
 from local_settings import TELE_TOKEN, CRM_CHANNEL
+from database import db_session, User, Company
 
 
-engine = sa.create_engine('sqlite:///users_example.sqlite')
+engine = sa.create_engine('sqlite:///crm_project_db.sqlite')
 db_session = scoped_session(sessionmaker(bind=engine))
 Base = declarative_base()
 
@@ -68,29 +69,34 @@ login_manager.login_view = 'login'
 def load_user(email):
     return db_session.query(User).filter(User.email == email).first()
 
-
-from flask_wtf import Form
+from flask_wtf import Form, FlaskForm
 import wtforms
 from wtforms import validators
 
-
-class LoginForm(Form):
-
-    email = wtforms.StringField(
-        validators=[validators.DataRequired(), validators.Email()],
-        description='Email address')
-
-    password = wtforms.PasswordField(
-        validators=[validators.DataRequired()],
-        description='Password')
+import wtforms
+from wtforms import validators
+from forms import LoginForm, UserInputForm, ClientInputForm, AgreementInputForm
 
 
 from flask_login import login_user, logout_user, login_required, current_user
 from flask import render_template
 
-@app.route('/')
-@login_required  # Если пользователь не залогинен, то редирект на страницу логина
+@app.route('/', methods=['GET', 'POST'])
+@login_required  # Если пользователь не залогинен,
+                 # то редирект на страницу логина
 def index():
+    form_clients = ClientInputForm()
+    if form_clients.validate_on_submit():
+        client = Company(company_name=form_clients.company_name.data,
+                         itin_num=form_clients.itin_num.data,
+                         email=form_clients.email.data,
+                         phone_numb=form_clients.phone_numb.data)
+        db_session.add(client)
+        db_session.commit()
+        flask.flash('DONE!')
+        return flask.redirect(flask.url_for('index'))
+    # form_agreements = AgreementInputForm()
+
     # В переменной current_user будет текущий пользователь
     # Если пользователь не залогинен, то current_user будет "анонимным"
     # првоерить можно так:
@@ -100,28 +106,8 @@ def index():
 
     # Но я этот код закоментил, т.к. выше стоит декоратор @login_required
     # а значит анонимный пользователь сюда не попадет
-    return render_template('welcome.html', user=current_user)
-
-
-    """
-    {% if user.is_anonymous %}
-        <form action="/login/"></form>
-    {% else %}
-        <span>Welcome {{ user.first_name }}</span>
-    {% endif %}
-
-    {% if user.is_anonymous %}
-        кукиш тебе
-    {% else %}
-        lkjlkj;lkj
-    {% endif %}
-    """
-    
     # return 'Hello, {}'.format(current_user.email)
-
-
-# Выше мы указали этот view для login_manager'а:
-# login_manager.login_view = 'login'
+    return flask.render_template('welcome.html', form=form_clients, user=current_user)
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
