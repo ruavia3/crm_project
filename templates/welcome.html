@@ -26,7 +26,9 @@
       <h3><span class="glyphicon glyphicon-user"></span> Users</h3>
       <p></p>
       <p><a href="users">Click here</a> to see all users in the CRM Project.</p>
-      
+     
+   
+     
       <div class="form-group">
         <label for="exampleInputTelegramID">Telegram ID</label>
         <input type="TelegramID" class="form-control" id="exampleInputTelegramID" placeholder="Telegram ID">
@@ -48,7 +50,9 @@
       </div>
 
 
-      <button type="button" class="btn btn-primary">Submit</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
+
+   
 
     </div>
       
@@ -61,28 +65,35 @@
       <p></p>
       <p><a href="clients">Click here</a> to see all clients in the CRM Project.</p>
       
+      <form action="{{ url_for('index') }}" method="POST">  
+
+
       <div class="form-group">
-        <label for="exampleInputINN">INN</label>
-        <input type="INN" class="form-control" id="exampleInputINN" placeholder="INN">
+        <label for="itin_num">INN</label>
+        <input name="itin_num" type="INN" class="form-control" id="itin_num" placeholder="INN">
       </div>
 
       <div class="form-group">
-        <label for="exampleInputName">Client Name</label>
-        <input type="Client Name" class="form-control" id="exampleInputClientName" placeholder="Client Name">
+        <label for="company_name">Client Name</label>
+        <input name="company_name" type="Client Name" class="form-control" id="company_name" placeholder="Client Name">
       </div>
 
      <div class="form-group">
-        <label for="exampleInputEmail1">Email</label>
-        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+        <label for="email">Email</label>
+        <input name="email" type="email" class="form-control" id="email" placeholder="Email">
       </div>
 
      <div class="form-group">
-        <label for="exampleInputUserID">Phone</label>
-        <input type="ClientPhone" class="form-control" id="exampleInputClientPhone" placeholder="Phone number">
+        <label for="phone_numb">Phone</label>
+        <input name="phone_numb" type="ClientPhone" class="form-control" id="phone_numb" placeholder="Phone number">
       </div>
+      
+      {{ form.csrf_token }}
 
-      <button type="button" class="btn btn-primary">Submit</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
     
+      </form>
+
     </div>
 
     <div class="col-sm-4">
@@ -90,6 +101,8 @@
       <p></p>        
       <p><a href="agreements">Click here</a> to see all agreements.</p>
       
+      
+
       <div class="form-group">
         <label for="exampleInputClient1">Client 1</label>
         <input type="Client1Name" class="form-control" id="exampleInputClient1Name" placeholder="Client Name">
@@ -112,6 +125,8 @@
 
       <button type="button" class="btn btn-primary">Submit</button>
     
+      
+
     </div>
   </div>
 </div>

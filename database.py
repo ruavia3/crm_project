@@ -70,22 +70,22 @@ class Company(Base):  # таблица компаний-клиентов,
                     # которая содержить основные данные клиентов
     __tablename__ = 'companies'
     id = Column(Integer, primary_key=True)
-    conmany_name = Column(String(50))  # наименование компании
+    company_name = Column(String(50))  # наименование компании
     itin_num = Column(String(12))  # ИНН
     email = Column(String(120), unique=True)  # эл.почта компании
     phone_numb = Column(String(50), unique=True)  # телефон
 
     def __init__(
-            self, conmany_name=None, itin_num=None,
+            self, company_name=None, itin_num=None,
             email=None, phone_numb=None):
-        self.conmany_name = conmany_name
+        self.company_name = company_name
         self.itin_num = itin_num
         self.email = email
         self.phone_numb = phone_numb
 
     def __repr__(self):
         return '<Company {} {} {} {}>'.format(
-            self.conmany_name, self.itin_num,
+            self.company_name, self.itin_num,
             self.email, self.phone_numb)
 
 
@@ -95,44 +95,44 @@ class Agreements(Base):  # таблица соглашений между дву
                         # и номер соглашения)
     __tablename__ = 'companies_agreements'
     id = Column(Integer, primary_key=True)
-    conmany_1_id = Column(Integer, ForeignKey('companies.id'))
-    company_1 = relationship('Company', foreign_keys=[conmany_1_id])
+    company_1_id = Column(Integer, ForeignKey('companies.id'))
+    company_1 = relationship('Company', foreign_keys=[company_1_id])
     # conmany_1_name = Column(String(50), ForeignKey('Company.conmany_name'))
-    conmany_2_id = Column(Integer, ForeignKey('companies.id'))
-    company_2 = relationship('Company', foreign_keys=[conmany_2_id])
+    company_2_id = Column(Integer, ForeignKey('companies.id'))
+    company_2 = relationship('Company', foreign_keys=[company_2_id])
     agreement_num = Column(String(12))
     cash_volume = Column(String(50))
 
-    def __init__(self, conmany_1_name=None, conmany_2_name=None,
+    def __init__(self, company_1=None, company_2=None,
                  agreement_num=None, cash_volume=None):
-        self.conmany_1_name = conmany_1_name
-        self.conmany_2_name = conmany_2_name
+        self.company_1 = company_1
+        self.company_2 = company_2
         self.agreement_num = agreement_num
         self.cash_volume = cash_volume
 
     def __repr__(self):
         return '<Agreement {} {} {} {}>'.format(
-            self.agreement_num, self.conmany_1.name,
-            self.conmany_2.name, self.cash_volume)
+            self.agreement_num, self.company_1.name,
+            self.company_2.name, self.cash_volume)
 
 
 class ClientRequests(Base):  # таблица запросов и проблем
                             # клиентов которые предстоит решить)
     __tablename__ = 'companies_requests'
     id = Column(Integer, primary_key=True)
-    conmany_id = Column(Integer, ForeignKey('companies.id'))
-    company_n = relationship('Company', foreign_keys=[conmany_id])
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    company_name = relationship('Company', foreign_keys=[company_id])
     request = Column(String(250))
     req_status = Column(String(50))
 
-    def __init__(self, conmany_name=None, request=None, req_status=None):
-        self.conmany_name = conmany_name
+    def __init__(self, company_name=None, request=None, req_status=None):
+        self.company_name = company_name
         self.request = request
         self.req_status = req_status
 
     def __repr__(self):
         return '<Request {} {} {}>'.format(
-            self.conmany_name, self.request, self.req_status)
+            self.company_name, self.request, self.req_status)
 
 
 if __name__ == "__main__":

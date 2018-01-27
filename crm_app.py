@@ -1,9 +1,15 @@
 import flask
+import logging
 from database import db_session, User, Company
 
 app = flask.Flask(__name__)
 
 app.config.update(SECRET_KEY='not very secret')
+
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+                    level=logging.INFO,
+                    filename='app.log'
+                    )
 
 from flask_login import LoginManager
 
@@ -20,7 +26,7 @@ def load_user(email):
     return db_session.query(User).filter(User.email == email).first()
 
 
-from flask_wtf import Form
+from flask_wtf import Form, FlaskForm
 import wtforms
 from wtforms import validators
 
@@ -36,13 +42,84 @@ class LoginForm(Form):
         description='Password')
 
 
+class UserInputForm(Form):
+
+    telegram_id = wtforms.StringField(
+        validators=[validators.DataRequired()],
+        description='Telegram id')
+
+    user_name = wtforms.StringField(
+        validators=[validators.DataRequired()],
+        description='User name')
+
+    email = wtforms.StringField(
+        validators=[validators.DataRequired(), validators.Email()],
+        description='Email address')
+
+    phone = wtforms.PasswordField(
+        validators=[validators.DataRequired()],
+        description='Phone number')
+
+
+class ClientInputForm(FlaskForm):
+
+    itin_num = wtforms.StringField(
+        validators=[validators.DataRequired()],
+        description='Itin_address')
+
+    company_name = wtforms.StringField(
+        validators=[validators.DataRequired()],
+        description='Company_name')
+
+    email = wtforms.StringField(
+        validators=[validators.DataRequired(), validators.Email()],
+        description='Email_address')
+
+    phone_numb = wtforms.PasswordField(
+        validators=[validators.DataRequired()],
+        description='Phone_number')
+
+
+class AgreementInputForm(Form):
+
+    client_1 = wtforms.StringField(
+        validators=[validators.DataRequired()],
+        description='Client 1 name')
+
+    client_2 = wtforms.StringField(
+        validators=[validators.DataRequired()],
+        description='Client 2 name')
+
+    agreement = wtforms.StringField(
+        validators=[validators.DataRequired(), validators.Email()],
+        description='Agreement number')
+
+    trade_volume = wtforms.PasswordField(
+        validators=[validators.DataRequired()],
+        description='Trade volume')
+
+
 from flask_login import login_user, logout_user, login_required, current_user
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @login_required  # Если пользователь не залогинен,
                  # то редирект на страницу логина
 def index():
+
+    # form_users = UserInputForm()
+    form_clients = ClientInputForm()
+    if form_clients.validate_on_submit():
+        client = Company(company_name=form_clients.company_name.data,
+                         itin_num=form_clients.itin_num.data,
+                         email=form_clients.email.data,
+                         phone_numb=form_clients.phone_numb.data)
+        db_session.add(client)
+        db_session.commit()
+        flask.flash('DONE!')
+        return flask.redirect(flask.url_for('index'))
+    # form_agreements = AgreementInputForm()
+
     # В переменной current_user будет текущий пользователь
     # Если пользователь не залогинен, то current_user будет "анонимным"
     # првоерить можно так:
@@ -53,10 +130,13 @@ def index():
     # Но я этот код закоментил, т.к. выше стоит декоратор @login_required
     # а значит анонимный пользователь сюда не попадет
     # return 'Hello, {}'.format(current_user.email)
-    return flask.render_template('welcome.html')
+    return flask.render_template('welcome.html', form=form_clients)
+
 
 @app.route('/clients/')
 def clients():
+    # form = ...
+    # if form.validate_on_submit():
     company_list = db_session.query(Company).limit(10)
     return flask.render_template('clients.html', company_list=company_list)
 
@@ -67,7 +147,6 @@ def clients():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-
         user = db_session.query(User).filter_by(email=form.email.data).first()
 
         if user is not None:
@@ -87,7 +166,8 @@ def login():
         # подробнее тут http://flask.pocoo.org/docs/0.12/patterns/flashing/
         flask.flash('Email or password is wrong.')
 
-    return flask.render_template('login.html', form=form)
+    return flask.render_template('login.html',
+                                 form=form, methods=['GET', 'POST'])
 
 
 @app.route('/logout/', methods=['GET', 'POST'])
