@@ -13,6 +13,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
 from local_settings import TELE_TOKEN, CRM_CHANNEL
 from database import db_session, User, Company
+from utils import crm_update_message
 
 
 engine = sa.create_engine('sqlite:///crm_project_db.sqlite')
@@ -94,7 +95,12 @@ def index():
         db_session.add(client)
         db_session.commit()
         flask.flash('DONE!')
+
+        text = 'В базе CRM зарегистрирован новый клиент - {}.\n Контакты:\n Email: {}\n Телефон: {}'.format(form_clients.company_name.data, form_clients.email.data, form_clients.phone_numb.data)
+        print (text)
+        crm_update_message(text)
         return flask.redirect(flask.url_for('index'))
+
     # form_agreements = AgreementInputForm()
 
     # В переменной current_user будет текущий пользователь
