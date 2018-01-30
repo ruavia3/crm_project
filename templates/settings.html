@@ -1,0 +1,131 @@
+{% macro render_field(field) %}
+
+   <div class="form-group">
+      <label for="{{ field.id }}">{{ field.label.text }}</label>
+      {% if field.type == 'SelectField' %}
+      <select name="{{ field.name }}" class="form-control" id="{{ field.id }}" placeholder="{{ field.label.text }}">
+        {% for choice_id, choice_value in field.choices %}
+        <option value="{{ choice_id }}">{{ choice_value }}</option>
+        {% endfor %}
+      </select>
+      {% else %}
+        <input name="{{ field.name }}" class="form-control" id="{{ field.id }}" placeholder="{{ field.label.text }}">
+      {% endif %}
+    </div>
+
+  <!-- <div class="field">
+    {{ field() }}
+  </div> -->
+    {% if field.errors %}
+      <ul>
+        {% for error in field.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+{% endmacro %}
+
+<div class="container">
+  <div class="row">
+    
+    <div class="col-sm-4">
+
+      <h3><span class="glyphicon glyphicon-user"></span> Users</h3>
+      <p></p>
+      <p><a href="users">Click here</a> to see all users in the CRM Project.</p>
+      
+      <div class="form-group">
+        <label for="exampleInputTelegramID">Telegram ID</label>
+        <input type="TelegramID" class="form-control" id="exampleInputTelegramID" placeholder="Telegram ID">
+      </div>
+
+      <div class="form-group">
+        <label for="exampleInputName">User Name</label>
+        <input type="UserName" class="form-control" id="exampleInputUserName" placeholder="User Name">
+      </div>
+
+     <div class="form-group">
+        <label for="exampleInputEmail1">Email</label>
+        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+      </div>
+
+     <div class="form-group">
+        <label for="exampleInputUserID">Phone</label>
+        <input type="UserPhone" class="form-control" id="exampleInputUserPhone" placeholder="Phone number">
+      </div>
+
+
+      <button type="button" class="btn btn-primary">Submit</button>
+
+    </div>
+      
+
+
+
+    <div class="col-sm-4">
+    
+      <h3><span class="glyphicon glyphicon-user"></span> Clients</h3>
+      <p></p>
+      <p><a href="clients">Click here</a> to see all clients in the CRM Project.</p>
+      
+      <form action="{{ url_for('index') }}" method="POST">  
+
+
+      <div class="form-group">
+        <label for="itin_num">INN</label>
+        <input name="itin_num" type="INN" class="form-control" id="itin_num" placeholder="INN">
+      </div>
+
+      <div class="form-group">
+        <label for="company_name">Client Name</label>
+        <input name="company_name" type="Client Name" class="form-control" id="company_name" placeholder="Client Name">
+      </div>
+
+     <div class="form-group">
+        <label for="email">Email</label>
+        <input name="email" type="email" class="form-control" id="email" placeholder="Email">
+      </div>
+
+     <div class="form-group">
+        <label for="phone_numb">Phone</label>
+        <input name="phone_numb" type="ClientPhone" class="form-control" id="phone_numb" placeholder="Phone number">
+      </div>
+      
+      {{ form.csrf_token }}
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    
+      </form>
+
+    </div>
+
+    <div class="col-sm-4">
+      <h3><span class="glyphicon glyphicon-file"></span> Agreements</h3>
+      <p></p>        
+      <p><a href="agreements">Click here</a> to see all agreements.</p>
+      
+      <form action="{{ url_for('index') }}" method="POST">  
+
+
+      {{ render_field(form_agreements.client_1) }}
+
+      {{ render_field(form_agreements.client_2) }}
+
+     
+     <div class="form-group">
+        <label for="exampleInputEmail1">Agreement</label>
+        <input name="Agreement" class="form-control" id="exampleInputAgreement" placeholder="Agreement Status">
+      </div>
+
+     <div class="form-group">
+        <label for="exampleInputTradeVol">Trade Volume</label>
+        <input name="TradeVol" class="form-control" id="exampleInputTradeVol" placeholder="Volume in mln">
+      </div>
+
+      <button type="button" class="btn btn-primary">Submit</button>
+    
+      </form>
+    
+    </div>
+  </div>
+</div>
