@@ -13,6 +13,33 @@
 </head>
 <body>
 
+{% macro render_field(field) %}
+
+   <div class="form-group">
+      <label for="{{ field.id }}">{{ field.label.text }}</label>
+      {% if field.type == 'SelectField' %}
+      <select name="{{ field.name }}" class="form-control" id="{{ field.id }}" placeholder="{{ field.label.text }}">
+        {% for choice_id, choice_value in field.choices %}
+        <option value="{{ choice_id }}">{{ choice_value }}</option>
+        {% endfor %}
+      </select>
+      {% else %}
+        <input name="{{ field.name }}" class="form-control" id="{{ field.id }}" placeholder="{{ field.label.text }}">
+      {% endif %}
+    </div>
+
+  <!-- <div class="field">
+    {{ field() }}
+  </div> -->
+    {% if field.errors %}
+      <ul>
+        {% for error in field.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+{% endmacro %}
+
 <div class="jumbotron text-center">
   <h1>Welcome to CRM Project</h1>
   <p>Keep in touch with your clients!</p> 
@@ -87,8 +114,8 @@
         <label for="phone_numb">Phone</label>
         <input name="phone_numb" type="ClientPhone" class="form-control" id="phone_numb" placeholder="Phone number">
       </div>
-      
-      {{ form.csrf_token }}
+
+      {{ form_clients.csrf_token }}
 
       <button type="submit" class="btn btn-primary">Submit</button>
     
@@ -101,31 +128,27 @@
       <p></p>        
       <p><a href="agreements">Click here</a> to see all agreements.</p>
       
-      
+      <form action="{{ url_for('index') }}" method="POST">  
 
-      <div class="form-group">
-        <label for="exampleInputClient1">Client 1</label>
-        <input type="Client1Name" class="form-control" id="exampleInputClient1Name" placeholder="Client Name">
-      </div>
 
-      <div class="form-group">
-        <label for="exampleInputClient1">Client 2</label>
-        <input type="Client2Name" class="form-control" id="exampleInputClient2Name" placeholder="Client Name">
-      </div>
+      {{ render_field(form_agreements.client_1) }}
 
+      {{ render_field(form_agreements.client_2) }}
+
+     
      <div class="form-group">
         <label for="exampleInputEmail1">Agreement</label>
-        <input type="Agreement" class="form-control" id="exampleInputAgreement" placeholder="Agreement Status">
+        <input name="Agreement" class="form-control" id="exampleInputAgreement" placeholder="Agreement Status">
       </div>
 
      <div class="form-group">
         <label for="exampleInputTradeVol">Trade Volume</label>
-        <input type="TradeVol" class="form-control" id="exampleInputTradeVol" placeholder="Volume in mln">
+        <input name="TradeVol" class="form-control" id="exampleInputTradeVol" placeholder="Volume in mln">
       </div>
 
       <button type="button" class="btn btn-primary">Submit</button>
     
-      
+      </form>
 
     </div>
   </div>

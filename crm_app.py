@@ -82,14 +82,20 @@ class ClientInputForm(FlaskForm):
 
 class AgreementInputForm(Form):
 
-    client_1 = wtforms.StringField(
-        validators=[validators.DataRequired()],
-        description='Client 1 name')
+    def __init__(self):
+        super(AgreementInputForm, self).__init__()
+        self.client_1.choices = db_session.query(
+            Company.id, Company.company_name
+        ).order_by(Company.company_name).all()
+        self.client_2.choices = self.client_1.choices
 
-    client_2 = wtforms.StringField(
-        validators=[validators.DataRequired()],
-        description='Client 2 name')
+    client_1 = wtforms.SelectField("Client 1")
+    client_2 = wtforms.SelectField("Client 2")
+    # StringField(
+    #     validators=[validators.DataRequired()],
+    #     description='Client 1 name')
 
+    
     agreement = wtforms.StringField(
         validators=[validators.DataRequired(), validators.Email()],
         description='Agreement number')
@@ -107,7 +113,16 @@ from flask_login import login_user, logout_user, login_required, current_user
                  # то редирект на страницу логина
 def index():
 
-    # form_users = UserInputForm()
+    form_users = UserInputForm()
+    # if form_users.validate_on_submit():
+    #     client = User(telegram_id=form_clients.company_name.data,
+    #                      itin_num=form_clients.itin_num.data,
+    #                      email=form_clients.email.data,
+    #                      phone_numb=form_clients.phone_numb.data)
+    #     db_session.add(client)
+    #     db_session.commit()
+    #     flask.flash('DONE!')
+    #     return flask.redirect(flask.url_for('index'))
     form_clients = ClientInputForm()
     if form_clients.validate_on_submit():
         client = Company(company_name=form_clients.company_name.data,
@@ -118,7 +133,7 @@ def index():
         db_session.commit()
         flask.flash('DONE!')
         return flask.redirect(flask.url_for('index'))
-    # form_agreements = AgreementInputForm()
+    form_agreements = AgreementInputForm()
 
     # В переменной current_user будет текущий пользователь
     # Если пользователь не залогинен, то current_user будет "анонимным"
@@ -130,7 +145,9 @@ def index():
     # Но я этот код закоментил, т.к. выше стоит декоратор @login_required
     # а значит анонимный пользователь сюда не попадет
     # return 'Hello, {}'.format(current_user.email)
-    return flask.render_template('welcome.html', form=form_clients)
+    return flask.render_template('welcome.html', form_clients=form_clients,
+                                 form_agreements=form_agreements,
+                                 methods=['GET', 'POST'])
 
 
 @app.route('/clients/')
