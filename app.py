@@ -11,9 +11,9 @@ import sqlalchemy as sa
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
-# from local_settings import TELE_TOKEN, CRM_CHANNEL
+from local_settings import TELE_TOKEN, CRM_CHANNEL
 from database import db_session, User, Company, Agreements
-# from utils import crm_update_message
+from utils import crm_update_message
 
 from flask_login import LoginManager
 
@@ -74,6 +74,11 @@ def index():
         print(user)
         db_session.add(user)
         db_session.commit()
+        flask.flash('Added user!')
+
+        text = 'В базе CRM зарегистрирован новый пользователь - {}.\n'.format(form_users.last_name.data)
+        print (text)
+        crm_update_message(text)
         return flask.redirect(flask.url_for('index'))
 
     form_clients = ClientInputForm()
@@ -84,7 +89,7 @@ def index():
                          phone_numb=form_clients.phone_numb.data)
         db_session.add(client)
         db_session.commit()
-        flask.flash('DONE!')
+        flask.flash('Added client!')
 
         text = 'В базе CRM зарегистрирован новый клиент - {}.\n Контакты:\n Email: {}\n Телефон: {}'.format(form_clients.company_name.data, form_clients.email.data, form_clients.phone_numb.data)
         print (text)
@@ -99,10 +104,12 @@ def index():
             agreement_num=form_agreements.agreement.data,
             cash_volume=form_agreements.trade_volume.data
         )
-        print(1111)
         db_session.add(agreement)
         db_session.commit()
-        flask.flash('DONE!')
+        flask.flash('Added agreement!')
+        text = 'В базе CRM зарегистрировано новое соглашение - №{}.между {} и {}'.format(form_agreements.agreement.data, form_agreements.client_1.data, form_agreements.client_2.data)
+        print (text)
+        crm_update_message(text)
         return flask.redirect(flask.url_for('index'))
 
     # В переменной current_user будет текущий пользователь
@@ -116,7 +123,8 @@ def index():
     # а значит анонимный пользователь сюда не попадет
     # return 'Hello, {}'.format(current_user.email)
     return flask.render_template('index.html',
-                                 form=form_clients,
+                                 form_users=form_users,
+                                 form_clients=form_clients,
                                  form_agreements=form_agreements,
                                  user=current_user, methods=['GET', 'POST'])
 

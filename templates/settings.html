@@ -46,29 +46,14 @@
       <p></p>
       <p><a href="users">Click here</a> to see all users in the CRM Project.</p>
 
-       <form action="{{ url_for('index') }}" method="POST">  
-      
-      <div class="form-group">
-        <label for="exampleInputTelegramID">Telegram ID</label>
-        <input name="telegram_id" type="TelegramID" class="form-control" id="exampleInputTelegramID" placeholder="Telegram ID">
-      </div>
+        <form action="{{ url_for('index') }}" method="POST">  
 
-      <div class="form-group">
-        <label for="exampleInputName">Last Name</label>
-        <input name="last_name" type="UserName" class="form-control" id="exampleInputUserName" placeholder="User Name">
-      </div>
+        {{ render_field(form_users.telegram_id) }}
+        {{ render_field(form_users.last_name) }}
+        {{ render_field(form_users.email) }}
+        {{ render_field(form_users.password) }}
 
-     <div class="form-group">
-        <label for="exampleInputEmail1">Email</label>
-        <input name="email" type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
-      </div>
-
-      <div class="form-group">
-        <label for="exampleInputUserID">Password</label>
-        <input name="password" type="password" class="form-control" id="exampleInputUserPhone" placeholder="Phone number">
-      </div>
-
-      {{ form.csrf_token }}
+        {{ form_users.csrf_token }}
 
       <button type="submit" class="btn btn-primary">Submit</button>
 
@@ -108,7 +93,7 @@
         <input name="phone_numb" type="ClientPhone" class="form-control" id="phone_numb" placeholder="Phone number">
       </div>
 
-      {{ form.csrf_token }}
+      {{ form_clients.csrf_token }}
 
       <button type="submit" class="btn btn-primary">Submit</button>
     
@@ -132,7 +117,7 @@
 
       {{ render_field(form_agreements.trade_volume) }}
 
-      {{ form.csrf_token }}
+      {{ form_agreements.csrf_token }}
 
       <button type="submit" class="btn btn-primary">Submit</button>
     

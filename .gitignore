@@ -1,3 +1,5 @@
+crm_project_db.sqlite
+users_example.sqlite
 
 # Mac stuff
 .DS_Store
