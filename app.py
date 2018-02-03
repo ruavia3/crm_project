@@ -12,50 +12,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
 # from local_settings import TELE_TOKEN, CRM_CHANNEL
-from database import db_session, User, Company
+from database import db_session, User, Company, Agreements
 # from utils import crm_update_message
-
-
-engine = sa.create_engine('sqlite:///crm_project_db.sqlite')
-db_session = scoped_session(sessionmaker(bind=engine))
-Base = declarative_base()
-
-
-class User(Base, UserMixin):  # UserMixin нужен для работы модуля flask_login
-    __tablename__ = 'users'
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    first_name = sa.Column(sa.String)
-    last_name = sa.Column(sa.String)
-    email = sa.Column(sa.String, unique=True)
-    _password = sa.Column(sa.String, name='password')
-
-    @property
-    def full_name(self):
-        return '{} {}'.format(self.first_name, self.last_name)
-
-    @property
-    def password(self):
-        return self._password
-
-    @password.setter
-    def password(self, plaintext):
-        # Генерируем соль
-        salt = uuid.uuid4().hex
-        # Соединяем с паролем и получаем хеш
-        hashed_password = hashlib.sha512((plaintext + salt).encode()).hexdigest()
-        # Сохраняем его вместе с сеолью в поле таблицы
-        self._password = salt + '|' + hashed_password
-
-    def check_password(self, plaintext):
-        # Получаем из поля "пароль" соль и хеш (хеш от пароля + соль)
-        salt, hashed_password = self.password.split('|')
-        # Проверяем соответствует ли сохраненный хаш от того, который мы получим с присланным паролем
-        return hashed_password == hashlib.sha512((plaintext + salt).encode()).hexdigest()
-
-    def get_id(self):  # Требуется для работы модуля flask_login
-        return self.email
-
 
 from flask_login import LoginManager
 
@@ -74,18 +32,27 @@ from flask_wtf import Form, FlaskForm
 import wtforms
 from wtforms import validators
 
-import wtforms
-from wtforms import validators
 from forms import LoginForm, UserInputForm, ClientInputForm, AgreementInputForm
-
 
 from flask_login import login_user, logout_user, login_required, current_user
 from flask import render_template
+
 
 @app.route('/', methods=['GET', 'POST'])
 @login_required  # Если пользователь не залогинен,
                  # то редирект на страницу логина
 def index():
+    form_users = UserInputForm()
+    if form_users.validate_on_submit():
+        user = User(last_name=form_users.last_name.data,
+                    email=form_users.email.data,
+                    telegram_id=form_users.telegram_id.data)
+        user.password = form_users.password.data
+        print(user)
+        db_session.add(user)
+        db_session.commit()
+        return flask.redirect(flask.url_for('index'))
+
     form_clients = ClientInputForm()
     if form_clients.validate_on_submit():
         client = Company(company_name=form_clients.company_name.data,
@@ -102,6 +69,16 @@ def index():
         return flask.redirect(flask.url_for('index'))
 
     form_agreements = AgreementInputForm()
+    if form_agreements.validate_on_submit():
+        agreement = Agreements(company_1_id=form_agreements.client_1.value,
+                               company_2_id=form_agreements.client_2.value,
+                               agreement_num=form_agreements.agreement.data,
+                               cash_volume=form_agreements.tradevol.data)
+        print(1111)
+        db_session.add(agreement)
+        db_session.commit()
+        flask.flash('DONE!')
+        return flask.redirect(flask.url_for('index'))
 
     # В переменной current_user будет текущий пользователь
     # Если пользователь не залогинен, то current_user будет "анонимным"
@@ -143,12 +120,22 @@ def login():
     return flask.render_template('welcome_example.html', form=form)
 
 
+@app.route('/users/')
+def users():
+    user_list = db_session.query(User).limit(10)
+    return flask.render_template('users.html', user_list=user_list)
+
+
 @app.route('/clients/')
 def clients():
-    # form = ...
-    # if form.validate_on_submit():
     company_list = db_session.query(Company).limit(10)
     return flask.render_template('clients.html', company_list=company_list)
+
+
+@app.route('/agreements/')
+def agreements():
+    agreement_list = db_session.query(Agreements).limit(10)
+    return flask.render_template('agreements.html', agreement_list=agreement_list)
 
 
 @app.route('/logout/', methods=['GET', 'POST'])
@@ -173,10 +160,10 @@ def telegram_inform():
 if __name__ == '__main__':
 
     # # Это для создания базы с тестовым пользователем
-    Base.metadata.create_all(bind=engine)
+    # Base.metadata.create_all(bind=engine)
     # u = User(email='no@any.mail')
     # u.password = '123'
     # db_session.add(u)
     # db_session.commit()
 
-app.run(port=5010, debug=True)
+    app.run(port=5010, debug=True)

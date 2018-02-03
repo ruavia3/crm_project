@@ -16,13 +16,13 @@ class LoginForm(Form):
         description='Password')
 
 
-class UserInputForm(Form):
+class UserInputForm(FlaskForm):
 
     telegram_id = wtforms.StringField(
         validators=[validators.DataRequired()],
         description='Telegram id')
 
-    user_name = wtforms.StringField(
+    last_name = wtforms.StringField(
         validators=[validators.DataRequired()],
         description='User name')
 
@@ -30,9 +30,9 @@ class UserInputForm(Form):
         validators=[validators.DataRequired(), validators.Email()],
         description='Email address')
 
-    phone = wtforms.PasswordField(
+    password = wtforms.PasswordField(
         validators=[validators.DataRequired()],
-        description='Phone number')
+        description='Password')
 
 
 class ClientInputForm(FlaskForm):
@@ -54,15 +54,15 @@ class ClientInputForm(FlaskForm):
         description='Phone_number')
 
 
-class AgreementInputForm(Form):
+class AgreementInputForm(FlaskForm):
 
     def __init__(self):
         super(AgreementInputForm, self).__init__()
         self.client_1.choices = db_session.query(Company.id, Company.company_name).order_by(Company.company_name).all()
         self.client_2.choices = self.client_1.choices
 
-    client_1 = wtforms.SelectField("Client 1")
-    client_2 = wtforms.SelectField("Client 2")
+    client_1 = wtforms.SelectField("Client 1", coerce=int)
+    client_2 = wtforms.SelectField("Client 2", coerce=int)
 
     agreement = wtforms.StringField(
         validators=[validators.DataRequired()],

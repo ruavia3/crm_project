@@ -22,31 +22,28 @@
 <table class="table table-hover">
 <thead>
 <tr>
-<th>Telegram ID</th>
-<th>Name</th>
+<th>Telegram id</th>
+<th>Last Name</th>
 <th>Email</th>
-<th>Phone</th>
 </tr>
 </thead>
 <tbody>
+
+{% for user in user_list %}
+
 <tr>
-<td>410416836</td>
-<td>Andrey Vasilyev</td>
-<td>bellistica@gmail.com</td>
-<td>+7 926 493 03 50</td>
+<td>{{ user.telegram_id }}</td>
+<td>{{ user.last_name }}</td>
+<td>{{ user.email }}</td>
+
 </tr>
-<tr>
-<td>000000000</td>
-<td>Anton Karabanov</td>
-<td>aokarabanov@gmail.com</td>
-<td>+7 926 000 00 00</td>
-</tr>
-<tr>
-<td>000000000</td>
-<td>Victor Akimov</td>
-<td>akimov.victor@gmail.com</td>
-<td>+7 926 000 00 00</td>
-</tr>
+
+{% endfor %}
+
+{% if not current_user.is_anonymous %}
+Hello {{ current_user.email }}
+{% endif %}
+
 </tbody>
 </table></div>
 
