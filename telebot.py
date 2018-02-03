@@ -1,6 +1,7 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 from local_settings import TELE_TOKEN
+from database import db_session, User, Company, Agreements
 
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -26,6 +27,13 @@ def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
 
+def clients(bot, update):
+    msg_clients = []
+    clients_list = db_session.query(Company.company_name).order_by(Company.company_name).all()
+    for client in clients_list:
+        msg_clients.append(client.company_name)
+    update.message.reply_text('\n'.join(msg_clients))
+
 
 def main():
     """Start the bot."""
@@ -37,6 +45,7 @@ def main():
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("clients", clients))
     dp.add_handler(MessageHandler(Filters.text, echo))
 
     # log all errors
