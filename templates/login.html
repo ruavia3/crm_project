@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>CRM Project</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="shortcut icon" href="static/img/favicon.png" type="image/x-icon">
+
+
+
+</head>
+<body>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">    
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Menu <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a target="_blank" href="https://github.com/ruavia3/crm_project">GitHub Page</a></li>
+            <li><a target="_blank" href="https://learn.python.ru/">Learn Python</a></li>
+            <li><a href="index">Settings</a></li>
+
+          </ul>
+        </li>
+      </ul>
+      {% if user.is_anonymous %}
+
+      <form id="signin" class="navbar-form navbar-right" role="form" "{{ url_for('login') }}" method="POST">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <input id="email" type="email" class="form-control" name="email" value="" placeholder="email">                                        
+                        </div>
+
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                            <input id="password" type="password" class="form-control" name="password" value="" placeholder="password">                                        
+                        </div>
+                        <input type="hidden" name="next" value="/">
+
+                        <button type="submit" class="btn btn-primary">Login</button>
+                   </form>
+      {% else %}
+      <ul class="nav navbar-right">
+          <!-- <div class ="navbar-right"> -->
+        <span>Welcome {{ user.email }} </span>
+          <!-- </div> -->
+    </ul>  
+        <form action="{% url_for('logout') %}" method="post">
+          <button type="submit" class="btn btn-primary">Logout</button>
+        </form>
+      {% endif %}
+     
+    </div>
+  </div>
+</nav>
+
+<div class="jumbotron text-center">
+  <h1>Welcome to CRM Project</h1>
+  <p>Keep in touch with your clients!</p> 
+</div>
+
+{% if not user.is_anonymous %}
+{% include "settings.html" ignore missing %}
+{% endif %}
+
+
+</body>
+</html>
