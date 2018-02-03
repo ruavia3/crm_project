@@ -70,10 +70,12 @@ def index():
 
     form_agreements = AgreementInputForm()
     if form_agreements.validate_on_submit():
-        agreement = Agreements(company_1_id=form_agreements.client_1.value,
-                               company_2_id=form_agreements.client_2.value,
-                               agreement_num=form_agreements.agreement.data,
-                               cash_volume=form_agreements.tradevol.data)
+        agreement = Agreements(
+            company_1_id=form_agreements.client_1.data,
+            company_2_id=form_agreements.client_2.data,
+            agreement_num=form_agreements.agreement.data,
+            cash_volume=form_agreements.trade_volume.data
+        )
         print(1111)
         db_session.add(agreement)
         db_session.commit()

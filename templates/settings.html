@@ -26,6 +26,18 @@
 {% endmacro %}
 
 <div class="container">
+
+  <!-- Message flashing -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-primary" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+    {% endif %}
+  {% endwith %}
+
   <div class="row">
     
     <div class="col-sm-4">
@@ -116,16 +128,9 @@
 
       {{ render_field(form_agreements.client_2) }}
 
-     
-     <div class="form-group">
-        <label for="exampleInputEmail1">Agreement</label>
-        <input name="agreement" class="form-control" id="exampleInputAgreement" placeholder="Agreement Status">
-      </div>
+      {{ render_field(form_agreements.agreement) }}
 
-     <div class="form-group">
-        <label for="exampleInputTradeVol">Trade Volume</label>
-        <input name="tradevol" class="form-control" id="exampleInputTradeVol" placeholder="Volume in mln">
-      </div>
+      {{ render_field(form_agreements.trade_volume) }}
 
       {{ form.csrf_token }}
 

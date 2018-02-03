@@ -58,7 +58,9 @@ class AgreementInputForm(FlaskForm):
 
     def __init__(self):
         super(AgreementInputForm, self).__init__()
-        self.client_1.choices = db_session.query(Company.id, Company.company_name).order_by(Company.company_name).all()
+        self.client_1.choices = [(0, '-----')] + db_session.query(
+            Company.id, Company.company_name
+        ).order_by(Company.company_name).all()
         self.client_2.choices = self.client_1.choices
 
     client_1 = wtforms.SelectField("Client 1", coerce=int)

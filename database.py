@@ -103,13 +103,6 @@ class Agreements(Base):  # таблица соглашений между дву
     agreement_num = Column(String(12))
     cash_volume = Column(String(50))
 
-    def __init__(self, company_1=None, company_2=None,
-                 agreement_num=None, cash_volume=None):
-        self.company_1 = company_1
-        self.company_2 = company_2
-        self.agreement_num = agreement_num
-        self.cash_volume = cash_volume
-
     def __repr__(self):
         return '<Agreement {} {} {} {}>'.format(
             self.agreement_num, self.company_1.name,
