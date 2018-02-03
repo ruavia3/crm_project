@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>CRM Clients</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</head>
+
+<body>
+
+<div class="jumbotron text-center">
+  <h1>CRM Clients</h1>
+  <p><a href="/">Click here</a> if you need to add a new one.</p>
+</div>
+
+<div class="bs-docs-example">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>INN</th>
+<th>Client Name</th>
+<th>Email</th>
+<th>Phone</th>
+</tr>
+</thead>
+<tbody>
+
+{% for company in company_list %}
+
+<tr>
+<td>{{ company.itin_num }}</td>
+<td>{{ company.company_name }}</td>
+<td>{{ company.email }}</td>
+<td>{{ company.phone_numb }}</td>
+</tr>
+
+{% endfor %}
+
+{% if not current_user.is_anonymous %}
+Hello {{ current_user.email }}
+{% endif %}
+
+
+<tr>
+<td>7744000302</td>
+<td>АО «Райффайзенбанк»</td>
+<td>info@raiffeisen.ru</td>
+<td>+7 495 721 91 00</td>
+</tr>
+<tr>
+<td>7728168971</td>
+<td>АО «АЛЬФА-БАНК»</td>
+<td>mail@alfabank.ru</td>
+<td>+7 495 620 91 91</td>
+</tr>
+<tr>
+<td>7707083893</td>
+<td>ПАО Сбербанк</td>
+<td>sberbank@sberbank.ru</td>
+<td>+ 7 495 957 57 31</td>
+</tr>
+</tbody>
+</table></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js" integrity="sha384-THPy051/pYDQGanwU6poAc/hOdQxjnOEXzbT+OuUAFqNqFjL+4IGLBgCJC3ZOShY" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js" integrity="sha384-Plbmg8JY28KFelvJVai01l8WyZzrYWG825m+cZ0eDDS1f7d/js6ikvy1+X+guPIB" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/js/bootstrap.min.js" integrity="VjEeINv9OSwtWFLAtmc4JCtEJXXBub00gtSnszmspDLCtC0I4z4nqz7rEFbIZLLU" crossorigin="anonymous"></script>
+
+</body>
+</html>
