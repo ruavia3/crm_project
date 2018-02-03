@@ -58,20 +58,25 @@
       </ul>
       {% if user.is_anonymous %}
 
-      <form id="signin" class="navbar-form navbar-right" role="form" "{{ url_for('login') }}" method="POST">
-                        <div class="input-group">
-                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                            <input id="email" type="email" class="form-control" name="email" value="" placeholder="email">                                        
-                        </div>
+      <form id="signin" class="navbar-form navbar-right" role="form"
+            action="{{ url_for('index') }}" method="POST">
 
-                        <div class="input-group">
-                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                            <input id="password" type="password" class="form-control" name="password" value="" placeholder="password">                                        
-                        </div>
-                        <input type="hidden" name="next" value="/">
+            {{ render_field(login_form.email) }}
+            {{ render_field(login_form.password) }}
+            {{ login_form.csrf_token }}
+                        <!--<div class="input-group">-->
+                            <!--<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>-->
+                            <!--<input id="email" type="email" class="form-control" name="email" value="" placeholder="email">                                        -->
+                        <!--</div>-->
 
-                        <button type="submit" class="btn btn-primary">Login</button>
-                   </form>
+                        <!--<div class="input-group">-->
+                            <!--<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>-->
+                            <!--<input id="password" type="password" class="form-control" name="password" value="" placeholder="password">                                        -->
+                        <!--</div>-->
+            <!--<input type="hidden" name="next" value="/">-->
+
+            <button type="submit" class="btn btn-primary">Login</button>
+      </form>
       {% else %}
       <form action="{{ url_for('logout') }}" method="post" class="nav navbar-right" style="margin-left: 10px; margin-top: 10px">
           <button type="submit" class="btn btn-primary">Logout</button>
@@ -82,11 +87,7 @@
       </ul>  
 
       {% endif %}
-     
-<!--         <form action="{{ url_for('telegram_inform') }}" method="post">
-          <input type="text" name="message">
-          <button type="submit" class="btn btn-primary">Telegram inform</button>
-        </form> -->
+
     </div>
   </div>
 </nav>
@@ -96,9 +97,10 @@
   <p>Keep in touch with your clients!</p> 
 </div>
 
+{% if user.is_anonymous %}
 <center><img src="http://uproxx.files.wordpress.com/2016/09/mr-burns-feat-uproxx.jpg?quality=100&w=650" align="middle"></center>
-{% if not user.is_anonymous %}
-{% include "settings.html" ignore missing %}
+{% else %}
+  {% include "settings.html" ignore missing %}
 {% endif %}
 
 

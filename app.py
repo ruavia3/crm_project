@@ -39,9 +39,32 @@ from flask import render_template
 
 
 @app.route('/', methods=['GET', 'POST'])
-@login_required  # Если пользователь не залогинен,
-                 # то редирект на страницу логина
 def index():
+    if current_user.is_anonymous:
+        login_form = LoginForm()
+        if login_form.validate_on_submit():
+
+            user = db_session.query(User).filter_by(email=login_form.email.data).first()
+
+            if user is not None:
+                if user.check_password(login_form.password.data):
+
+                    # Эта функция будет создавать сессию для пользователя
+                    # и проставляться cookie с ключом сессии
+                    login_user(user)
+
+                    next_url = flask.request.args.get('next', flask.url_for('index'))
+                    return flask.redirect(next_url)
+
+            # Это механизм для вывода дополнительных сообщений на страницу
+            # в файле login.html смотри <!-- Message flashing -->
+            # подробнее тут http://flask.pocoo.org/docs/0.12/patterns/flashing/
+            flask.flash('Email or password is wrong.')
+
+        return flask.render_template('index.html',
+                                     login_form=login_form,
+                                     user=current_user)
+
     form_users = UserInputForm()
     if form_users.validate_on_submit():
         user = User(last_name=form_users.last_name.data,
@@ -92,7 +115,8 @@ def index():
     # Но я этот код закоментил, т.к. выше стоит декоратор @login_required
     # а значит анонимный пользователь сюда не попадет
     # return 'Hello, {}'.format(current_user.email)
-    return flask.render_template('welcome.html', form=form_clients,
+    return flask.render_template('index.html',
+                                 form=form_clients,
                                  form_agreements=form_agreements,
                                  user=current_user, methods=['GET', 'POST'])
 
@@ -143,7 +167,7 @@ def agreements():
 @app.route('/logout/', methods=['GET', 'POST'])
 def logout():
     logout_user()
-    return flask.redirect(flask.url_for('login'))
+    return flask.redirect(flask.url_for('index'))
 
 
 @app.route('/telegram_inform/', methods=['POST'])
